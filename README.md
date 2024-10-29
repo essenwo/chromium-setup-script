@@ -65,7 +65,8 @@ services:
     ports:
       - "3010:3000"
       - "3011:3001"
-    shm_size: "1gb"
+    shm_size: "2gb"  # 增加共享内存大小，防止浏览器崩溃
+    command: --no-sandbox  # 使用无沙盒模式，避免权限问题
     restart: unless-stopped
 EOF
     echo "docker-compose.yaml 文件已创建。"
