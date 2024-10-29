@@ -30,22 +30,6 @@ configure_docker() {
     echo "Docker 配置完成，版本为: $(docker --version)"
 }
 
-# 获取用户自定义的用户名和密码
-get_user_credentials() {
-    read -p "请输入 CUSTOM_USER: " CUSTOM_USER
-    if [ -z "$CUSTOM_USER" ]; then
-        echo "CUSTOM_USER 不能为空。"
-        exit 1
-    fi
-
-    read -sp "请输入 PASSWORD: " PASSWORD
-    echo
-    if [ -z "$PASSWORD" ]; then
-        echo "PASSWORD 不能为空。"
-        exit 1
-    fi
-}
-
 # 创建 docker-compose.yaml 文件
 create_docker_compose() {
     cat <<EOF > docker-compose.yaml
@@ -55,18 +39,14 @@ services:
     image: lscr.io/linuxserver/chromium:latest
     container_name: chromium
     environment:
-      - CUSTOM_USER=$CUSTOM_USER
-      - PASSWORD=$PASSWORD
       - PUID=1000
       - PGID=1000
       - TZ=Europe/London
-      - DISPLAY=:1  # 设置虚拟显示
     volumes:
-      - $HOME/chromium/config:/config
+      - ./config:/config
     ports:
       - "3010:3000"
-      - "3011:3001"
-    shm_size: "2gb"  # 增加共享内存大小，防止浏览器崩溃
+    shm_size: "2gb"
     restart: unless-stopped
 EOF
     echo "docker-compose.yaml 文件已创建。"
@@ -83,17 +63,15 @@ start_docker_compose() {
     echo "Docker Compose 已启动。"
     echo "您可以通过以下链接访问服务："
     echo "http://$SERVER_IP:3010/"
-    echo "或"
-    echo "http://$SERVER_IP:3011/"
 }
 
 # 主函数
 main() {
     configure_docker
     mkdir -p $HOME/chromium && cd $HOME/chromium
-    get_user_credentials
     create_docker_compose
     start_docker_compose
 }
 
 main
+
