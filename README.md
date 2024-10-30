@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# 错误处理
 trap 'echo "发生错误，正在清理..." && docker compose down' ERR
 
-# 检查并配置 Docker
 configure_docker() {
    if ! command -v docker &> /dev/null || ! docker info &> /dev/null; then
        echo "Docker 未安装或未启动，正在安装..."
@@ -27,7 +25,6 @@ configure_docker() {
    echo "Docker 配置完成，版本为: $(docker --version)"
 }
 
-# 检查端口占用
 check_ports() {
    local ports=(3010 3011)
    for port in "${ports[@]}"; do
@@ -38,7 +35,6 @@ check_ports() {
    done
 }
 
-# 获取用户凭据
 get_user_credentials() {
    read -p "请输入 CUSTOM_USER: " CUSTOM_USER
    if [ -z "$CUSTOM_USER" ]; then
@@ -61,7 +57,6 @@ get_user_credentials() {
    fi
 }
 
-# 创建 docker-compose.yaml
 create_docker_compose() {
    cat <<EOF > docker-compose.yaml
 version: '3'
@@ -81,12 +76,16 @@ services:
      - PGID=1000
      - TZ=Asia/Shanghai
      - DISPLAY=:1
+     - DISPLAY_WIDTH=1920
+     - DISPLAY_HEIGHT=1080
+     - CUSTOM_PORT=3000
+     - CUSTOM_HTTPS_PORT=3001
    volumes:
      - $HOME/chromium/config:/config
    ports:
      - "3010:3000"
      - "3011:3001"
-   shm_size: "2gb"
+   shm_size: "4gb"
    security_opt:
      - seccomp=unconfined
    networks:
@@ -96,7 +95,6 @@ EOF
    echo "docker-compose.yaml 文件已创建。"
 }
 
-# 启动 Docker Compose
 start_docker_compose() {
    if ! docker compose up -d; then
        echo "Docker Compose 启动失败。"
@@ -109,9 +107,10 @@ start_docker_compose() {
    echo "或"
    echo "http://$SERVER_IP:3011/"
    echo "用户名: $CUSTOM_USER"
+   echo "等待30秒后再访问..."
+   sleep 30
 }
 
-# 主函数
 main() {
    configure_docker
    mkdir -p $HOME/chromium && cd $HOME/chromium
@@ -122,4 +121,3 @@ main() {
 }
 
 main
-
