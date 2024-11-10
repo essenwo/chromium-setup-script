@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # 错误处理
 trap 'echo "发生错误，正在清理..." && docker-compose down' ERR
@@ -65,8 +64,18 @@ services:
       - CUSTOM_WEBRTC_FPS=30
       - BASE_URL=/
       - DRINODE=/dev/dri/renderD128
+      - LANG=zh_CN.UTF-8
+      - LANGUAGE=zh_CN:zh
+      - LC_ALL=zh_CN.UTF-8
+      - ENABLE_CJK_IME=true
+      - ENABLE_CLIPBOARD=true
+      - CLIPBOARD_COPY=true
+      - CLIPBOARD_PASTE=true
+      - ENABLE_KEYBOARD=true
+      - KEYBOARD=zh-CN
     volumes:
       - ./config:/config
+      - /dev/shm:/dev/shm
     ports:
       - "3020:3000"
       - "3021:3001"
@@ -96,7 +105,10 @@ start_service() {
         echo "请等待 30 秒后访问: http://$IP:3020"
         echo "登录信息已保存在 ~/chromium/login_info.txt"
         cat ~/chromium/login_info.txt
-        echo "注意：首次启动可能需要等待1-2分钟才能完全加载。"
+        echo "注意："
+        echo "1. 首次启动可能需要等待1-2分钟才能完全加载"
+        echo "2. 中文输入法可能需要在浏览器设置中启用"
+        echo "3. 如需使用跨设备剪贴板，请允许浏览器的剪贴板访问权限"
     else
         echo "服务启动失败，请检查日志。"
         exit 1
