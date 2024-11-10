@@ -55,7 +55,7 @@ services:
       - ENABLE_OPENBOX=false
       - CUSTOM_PORT=3000
       - CUSTOM_HTTPS_PORT=3001
-      - CHROME_CLI=--no-sandbox --disable-gpu --disable-dev-shm-usage --ignore-certificate-errors --start-maximized --default-browser-check --homepage https://chrome.google.com/webstore
+      - CHROME_CLI=--no-sandbox --disable-gpu --disable-dev-shm-usage --ignore-certificate-errors --start-maximized --default-browser-check --homepage https://chrome.google.com/webstore --disable-session-restore
       - VNC_RESIZE=scale
       - CUSTOM_RES_W=1920
       - CUSTOM_RES_H=1080
@@ -64,17 +64,13 @@ services:
       - CUSTOM_WEBRTC_FPS=30
       - BASE_URL=/
       - DRINODE=/dev/dri/renderD128
-      - LANG=zh_CN.UTF-8
-      - LANGUAGE=zh_CN:zh
-      - LC_ALL=zh_CN.UTF-8
-      - ENABLE_CJK_IME=true
       - ENABLE_CLIPBOARD=true
       - CLIPBOARD_COPY=true
       - CLIPBOARD_PASTE=true
-      - ENABLE_KEYBOARD=true
-      - KEYBOARD=zh-CN
+      - VNC_CLEAR_COOKIES=true
+      - SESSION_TIMEOUT=0
     volumes:
-      - ./config:/config
+      - ./config:/config:rw
       - /dev/shm:/dev/shm
     ports:
       - "3020:3000"
@@ -105,10 +101,7 @@ start_service() {
         echo "请等待 30 秒后访问: http://$IP:3020"
         echo "登录信息已保存在 ~/chromium/login_info.txt"
         cat ~/chromium/login_info.txt
-        echo "注意："
-        echo "1. 首次启动可能需要等待1-2分钟才能完全加载"
-        echo "2. 中文输入法可能需要在浏览器设置中启用"
-        echo "3. 如需使用跨设备剪贴板，请允许浏览器的剪贴板访问权限"
+        echo "注意：首次启动可能需要等待1-2分钟才能完全加载。"
     else
         echo "服务启动失败，请检查日志。"
         exit 1
