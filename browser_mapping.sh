@@ -55,7 +55,7 @@ services:
       - ENABLE_OPENBOX=true
       - CUSTOM_PORT=3000
       - CUSTOM_HTTPS_PORT=3001
-      - CHROME_CLI=--disable-dev-shm-usage --no-sandbox --disable-gpu --ignore-certificate-errors --disable-features=WebRtcHideLocalIpsWithMdns
+      - CHROME_CLI=--disable-dev-shm-usage --no-sandbox --disable-gpu --ignore-certificate-errors
       - VNC_RESIZE=scale
       - CUSTOM_RES_W=1920
       - CUSTOM_RES_H=1080
@@ -63,11 +63,8 @@ services:
       - VNC_VIEW_ONLY=0
       - CUSTOM_WEBRTC_FPS=30
       - BASE_URL=/
-      - ENABLE_CLIPBOARD_READ=true
-      - ENABLE_CLIPBOARD_WRITE=true
     volumes:
       - ./config:/config
-      - /dev/shm:/dev/shm
     ports:
       - "3020:3000"
       - "3021:3001"
