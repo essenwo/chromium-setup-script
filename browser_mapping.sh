@@ -1,6 +1,6 @@
 #!/bin/bash
 # 错误处理
-trap 'echo "发生错误，正在清理..." && docker compose down' ERR
+trap 'echo "发生错误，正在清理..." && docker-compose down' ERR
 
 # 生成随机密码
 generate_password() {
@@ -82,7 +82,7 @@ EOF
 
 # 启动服务
 start_service() {
-   docker compose up -d
+   docker-compose up -d
    if [ $? -eq 0 ]; then
        echo "服务启动成功！"
        IP=$(hostname -I | awk '{print $1}')
