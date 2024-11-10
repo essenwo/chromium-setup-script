@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # 错误处理
 trap 'echo "发生错误，正在清理..." && docker-compose down' ERR
@@ -64,14 +65,17 @@ services:
       - CUSTOM_WEBRTC_FPS=30
       - BASE_URL=/
       - DRINODE=/dev/dri/renderD128
-      - ENABLE_CLIPBOARD=true
-      - CLIPBOARD_COPY=true
-      - CLIPBOARD_PASTE=true
       - VNC_CLEAR_COOKIES=true
       - SESSION_TIMEOUT=0
+      - ENABLE_SHARE_CLIPBOARD=true
+      - ENABLE_LOCAL_CLIPBOARD=true
+      - ENABLE_SYNC_CLIPBOARD=true
+      - ENABLE_VNC_CLIPBOARD=true
+      - KASMVNC_CLIPBOARD_LIMIT=268435456
     volumes:
       - ./config:/config:rw
       - /dev/shm:/dev/shm
+      - /etc/localtime:/etc/localtime:ro
     ports:
       - "3020:3000"
       - "3021:3001"
@@ -82,6 +86,7 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
+      - SYS_RESOURCE
     restart: unless-stopped
 EOF
     mkdir -p config
@@ -101,7 +106,9 @@ start_service() {
         echo "请等待 30 秒后访问: http://$IP:3020"
         echo "登录信息已保存在 ~/chromium/login_info.txt"
         cat ~/chromium/login_info.txt
-        echo "注意：首次启动可能需要等待1-2分钟才能完全加载。"
+        echo "注意："
+        echo "1. 首次启动可能需要等待1-2分钟才能完全加载"
+        echo "2. 使用剪贴板功能时，请在浏览器弹出的权限请求中选择"允许""
     else
         echo "服务启动失败，请检查日志。"
         exit 1
