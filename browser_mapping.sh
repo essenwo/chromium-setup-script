@@ -1,3 +1,33 @@
+#!/bin/bash
+# 错误处理
+trap 'echo "发生错误，正在清理..." && docker-compose down' ERR
+
+# 生成随机密码
+generate_password() {
+    tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_' < /dev/urandom | head -c 10
+}
+
+# 检查并配置 Docker
+configure_docker() {
+    if ! command -v docker &> /dev/null || ! docker info &> /dev/null; then
+        echo "Docker 未安装或未启动，正在安装..."
+        sudo apt update -y && sudo apt upgrade -y
+        sudo apt-get remove -y docker.io docker-doc docker-compose podman-docker containerd runc
+        sudo apt-get install -y ca-certificates curl gnupg
+        
+        sudo install -m 0755 -d /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        sudo chmod a+r /etc/apt/keyrings/docker.gpg
+        echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+        $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt update -y
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    else
+        echo "Docker 已安装，跳过安装步骤。"
+    fi
+}
+
 # 创建配置文件
 create_config() {
     mkdir -p ~/chromium && cd ~/chromium
@@ -25,7 +55,7 @@ services:
       - ENABLE_OPENBOX=true
       - CUSTOM_PORT=3000
       - CUSTOM_HTTPS_PORT=3001
-      - CHROME_CLI=--disable-dev-shm-usage --no-sandbox --disable-gpu --ignore-certificate-errors
+      - CHROME_CLI=--disable-dev-shm-usage --no-sandbox --disable-gpu --ignore-certificate-errors --disable-features=WebRtcHideLocalIpsWithMdns
       - VNC_RESIZE=scale
       - CUSTOM_RES_W=1920
       - CUSTOM_RES_H=1080
@@ -33,9 +63,8 @@ services:
       - VNC_VIEW_ONLY=0
       - CUSTOM_WEBRTC_FPS=30
       - BASE_URL=/
-      - ENABLE_CLIPBOARD=true
-      - ENABLE_SYNC_CLIPBOARD=true
-      - KASMVNC_CLIPBOARD_LIMIT=268435456
+      - ENABLE_CLIPBOARD_READ=true
+      - ENABLE_CLIPBOARD_WRITE=true
     volumes:
       - ./config:/config
       - /dev/shm:/dev/shm
@@ -58,3 +87,29 @@ EOF
     echo "密码: $RANDOM_PASSWORD" >> ~/chromium/login_info.txt
     chmod 600 ~/chromium/login_info.txt
 }
+
+# 启动服务
+start_service() {
+    docker-compose up -d
+    if [ $? -eq 0 ]; then
+        echo "服务启动成功！"
+        IP=$(hostname -I | awk '{print $1}')
+        echo "请等待 30 秒后访问: http://$IP:3020"
+        echo "登录信息已保存在 ~/chromium/login_info.txt"
+        cat ~/chromium/login_info.txt
+    else
+        echo "服务启动失败，请检查日志。"
+        exit 1
+    fi
+}
+
+# 主函数
+main() {
+    echo "开始安装远程浏览器服务..."
+    configure_docker
+    create_config
+    start_service
+}
+
+# 执行主函数
+main
