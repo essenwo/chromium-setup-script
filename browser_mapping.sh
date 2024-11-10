@@ -53,10 +53,10 @@ services:
       - CUSTOM_QUALITY=100
       - CUSTOM_COMPRESSION=0
       - CUSTOM_FPS=60
-      - ENABLE_OPENBOX=true
+      - ENABLE_OPENBOX=false
       - CUSTOM_PORT=3000
       - CUSTOM_HTTPS_PORT=3001
-      - CHROME_CLI=--disable-dev-shm-usage --no-sandbox --disable-gpu --ignore-certificate-errors --app=https://chrome.google.com/webstore
+      - CHROME_CLI=--no-sandbox --disable-gpu --disable-dev-shm-usage --ignore-certificate-errors --start-maximized --default-browser-check --homepage https://chrome.google.com/webstore
       - VNC_RESIZE=scale
       - CUSTOM_RES_W=1920
       - CUSTOM_RES_H=1080
@@ -64,6 +64,7 @@ services:
       - VNC_VIEW_ONLY=0
       - CUSTOM_WEBRTC_FPS=30
       - BASE_URL=/
+      - DRINODE=/dev/dri/renderD128
     volumes:
       - ./config:/config
     ports:
@@ -95,6 +96,7 @@ start_service() {
         echo "请等待 30 秒后访问: http://$IP:3020"
         echo "登录信息已保存在 ~/chromium/login_info.txt"
         cat ~/chromium/login_info.txt
+        echo "注意：首次启动可能需要等待1-2分钟才能完全加载。"
     else
         echo "服务启动失败，请检查日志。"
         exit 1
