@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # 错误处理
 trap 'echo "发生错误，正在清理..." && docker-compose down' ERR
@@ -55,7 +56,7 @@ services:
       - ENABLE_OPENBOX=true
       - CUSTOM_PORT=3000
       - CUSTOM_HTTPS_PORT=3001
-      - CHROME_CLI=--disable-dev-shm-usage --no-sandbox --disable-gpu --ignore-certificate-errors
+      - CHROME_CLI=--disable-dev-shm-usage --no-sandbox --disable-gpu --ignore-certificate-errors --app=https://chrome.google.com/webstore
       - VNC_RESIZE=scale
       - CUSTOM_RES_W=1920
       - CUSTOM_RES_H=1080
